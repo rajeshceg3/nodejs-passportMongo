@@ -1,44 +1,44 @@
 const express = require('express');
 const session = require('express-session');
-const redis = require('redis');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const RedisStore = require('connect-redis')(session);
+const MongoDBStore = require('connect-mongodb-session')(session);
+const MongoClient = require('mongodb').MongoClient;
 require('dotenv').config();
 const secretKey = process.env.SECRET || 'secret-key';
 const REDIS_PORT = process.env.REDIS_PORT || 6379;
+const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017';
 
 const app = express();
 
 // Set view engine
 app.set('view engine', 'ejs');
 
-// Create Redis client
-const redisClient = redis.createClient({
-  host: 'localhost',
-  port: REDIS_PORT,
+// Create Monogo client
+const mongoclient = new MongoClient(mongoUrl, {useUnifiedTopology: true});
+mongoclient.connect((err)=>{
+  if(err){
+    console.error(err);
+  }
+  else{
+    console.log("Conneced to Mongo server")
+  }
+}) 
+
+const mongoStore = new MongoDBStore({
+  uri: mongoUrl,
+  collection: "sessions"
 });
 
-// Hardcoded user stored in redisClient db
-redisClient.hSet('foo', {
-  id: 1,
-  username: 'foo',
-  password: 'bar'
-});
-redisClient.hSet('john', {
-  id: 2,
-  username: 'john',
-  password: 'doe'
+// Handle errors
+mongoStore.on('error',(error)=>{
+  console.error(error);
 });
 
-redisClient.on('connect', ()=>{
-  console.log("Connected to Redis Server");
-})
-
-// Link express-session with redis store
+// Link express-session with mongoStore
 app.use(
   session({
-    store: new RedisStore({ client: redisClient }),
+    store: mongoStore,
     secret: secretKey,
     resave: false,
     saveUninitialized: false,
@@ -53,9 +53,23 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Create a hardcoded users collection
+const usersCollection = mongoclient.db('db').collection('users');
+usersCollection.insertOne({
+  id: 1,
+  username: "foo",
+  password: "bar"
+})
+
+usersCollection.insertOne({
+  id: 2,
+  username: "john",
+  password: "doe"
+})
+
 // Define local auth strategy
 const localStrategy = new LocalStrategy((username, password, done) => {
-redisClient.hGetAll(username, (err, user)=>{
+  usersCollection.findOne({username: username},(err, user)=>{
   if(err){
     return done(err);
   }
@@ -68,6 +82,7 @@ redisClient.hGetAll(username, (err, user)=>{
   return done(null, user);
 })
 });
+
 passport.use(localStrategy);
 
 // Return the single parameter from user object
@@ -78,9 +93,8 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser((username, done) => {
   // Do a db call to look up the user object using id
-  // Here, we are hard coding it and call done method with
-  // entire user object
-  redisClient.hGetAll(username, (err, user)=>{
+  // Here, we are hard coding it and call done method with entire user object
+    usersCollection.findOne({username:username},(err,user)=>{
     if(err){
       done(err);
     }
