@@ -4,6 +4,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const MongoDBStore = require('connect-mongodb-session')(session);
 const MongoClient = require('mongodb').MongoClient;
+const bodyParser = require('body-parser');
 require('dotenv').config();
 const secretKey = process.env.SECRET || 'secret-key';
 const REDIS_PORT = process.env.REDIS_PORT || 6379;
@@ -11,6 +12,7 @@ const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017';
 
 const app = express();
 
+app.use(bodyParser.urlencoded({extended:true}));
 // Set view engine
 app.set('view engine', 'ejs');
 
@@ -108,13 +110,29 @@ app.get('/login', (req, res) => {
   res.render('login');
 });
 
-app.post(
-  '/login',
-  passport.authenticate('local', {
+app.post('/login',passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/login',
   })
 );
+
+app.get('/register', (req, res) => {
+  res.render('register');
+});
+
+app.post('/register', (req, res) => {
+  const { username, password } = req.body;
+  // Insert new user into MongoDB collection
+  usersCollection.insertOne({ username, password }, (err) => {
+    if (err) {
+      console.error(err);
+      res.redirect('/register');
+    } else {
+      res.redirect('/login');
+    }
+  });
+});
+
 
 app.get('/', (req, res) => {
   // Check if the user is authenticated
