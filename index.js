@@ -58,13 +58,11 @@ app.use(passport.session());
 // Create a hardcoded users collection
 const usersCollection = mongoclient.db('db').collection('users');
 usersCollection.insertOne({
-  id: 1,
   username: "foo",
   password: "bar"
 })
 
 usersCollection.insertOne({
-  id: 2,
   username: "john",
   password: "doe"
 })
@@ -110,11 +108,12 @@ app.get('/login', (req, res) => {
   res.render('login');
 });
 
-app.post('/login',passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: '/login',
-  })
-);
+const redirects = {
+  successRedirect: '/',
+  failureRedirect: '/login'
+};
+
+app.post('/login',passport.authenticate('local', redirects));
 
 app.get('/register', (req, res) => {
   res.render('register');
@@ -136,7 +135,10 @@ app.post('/register', (req, res) => {
 
 app.get('/', (req, res) => {
   // Check if the user is authenticated
+  console.log("Are we here")
+  console.log(req.session.passport.user);
   if (req.isAuthenticated()) {
+    console.log("Are we here 2")
     res.send(`Welcome, ${req.user.username}`);
   } else {
     res.redirect('/login');
