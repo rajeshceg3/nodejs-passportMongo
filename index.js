@@ -10,6 +10,7 @@ const REDIS_PORT = process.env.REDIS_PORT || 6379;
 const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017';
 
 const app = express();
+app.use(express.urlencoded({extended:false}))
 
 // Set view engine
 app.set('view engine', 'ejs');
@@ -43,11 +44,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-     // secure: true, // for HTTPS // removed this due to SSL session termination
-      // maxAge: 1000 * 60 * 60 * 1, // 1 hour - input taken in ms
-      maxAge: 1000 * 30, // 1 hour - input taken in ms
-
-    },
+  //  secure: true, // for HTTPS // removed this due to SSL termination
+      maxAge: 1000 * 60 * 60 * 1, // 1 hour - input taken in ms
+    }
   })
 );
 
@@ -94,7 +93,7 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((username, done) => {
   // Do a db call to look up the user object using id
   // Here, we are hard coding it and call done method with entire user object
-    usersCollection.findOne({username:username},(err,user)=>{
+  usersCollection.findOne({username:username},(err,user)=>{
     if(err){
       done(err);
     }
