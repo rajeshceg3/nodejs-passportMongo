@@ -5,5 +5,11 @@
 tasks:
   - init: npm install
     command: npm run start
+  
+  - name: Mongo setup
+    before : sudo apt-get install mongodb
+    init : sudo mkdir -p /data/db && sudo chown -R $USER /data/db
+    command: mongod 
+
 
 
