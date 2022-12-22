@@ -4,7 +4,6 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const MongoDBStore = require('connect-mongodb-session')(session);
 const MongoClient = require('mongodb').MongoClient;
-const bodyParser = require('body-parser');
 require('dotenv').config();
 const secretKey = process.env.SECRET || 'secret-key';
 const REDIS_PORT = process.env.REDIS_PORT || 6379;
@@ -12,7 +11,6 @@ const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017';
 
 const app = express();
 
-app.use(bodyParser.urlencoded({extended:true}));
 // Set view engine
 app.set('view engine', 'ejs');
 
@@ -45,8 +43,10 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true, // for HTTPS
-      maxAge: 1000 * 60 * 60 * 1, // 1 hour - input taken in ms
+     // secure: true, // for HTTPS // removed this due to SSL session termination
+      // maxAge: 1000 * 60 * 60 * 1, // 1 hour - input taken in ms
+      maxAge: 1000 * 30, // 1 hour - input taken in ms
+
     },
   })
 );
@@ -135,15 +135,20 @@ app.post('/register', (req, res) => {
 
 app.get('/', (req, res) => {
   // Check if the user is authenticated
-  console.log("Are we here")
-  console.log(req.session.passport.user);
   if (req.isAuthenticated()) {
-    console.log("Are we here 2")
     res.send(`Welcome, ${req.user.username}`);
   } else {
     res.redirect('/login');
   }
 });
+
+app.get('/logout',(req,res)=>{
+  req.logOut(()=>{
+    res.redirect('/login');
+  });
+})
+
+
 app.listen(3000, () => {
   console.log('Server listening on port 3000');
 });
