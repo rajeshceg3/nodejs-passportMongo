@@ -135,7 +135,7 @@ app.post('/register', (req, res) => {
 app.get('/', (req, res) => {
   // Check if the user is authenticated
   if (req.isAuthenticated()) {
-    res.send(`Welcome, ${req.user.username}`);
+    res.render('home',{ user: req.user.username})    
   } else {
     res.redirect('/login');
   }
