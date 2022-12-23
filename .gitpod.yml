@@ -4,7 +4,7 @@
 
 tasks:
   - init: npm install 
-    command: sudo apt-get install mongodb && sudo mkdir -p /data/db && sudo chown -R $USER /data/db && mogod && npm run start
+    command: sudo apt-get install mongodb && sudo mkdir -p /data/db && sudo chown -R $USER /data/db && mongod && npm run start
   
 
 
