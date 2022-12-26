@@ -144,7 +144,16 @@ app.get('/', (req, res) => {
 app.get('/about', (req, res) => {
   // Check if the user is authenticated by passport local
   if (req.isAuthenticated()) {
-    res.render('about',{ user: req.user.username})    
+    res.render('about')    
+  } else {
+    res.redirect('/login');
+  }
+});
+
+app.get('/contact', (req, res) => {
+  // Check if the user is authenticated by passport local
+  if (req.isAuthenticated()) {
+    res.render('contact')    
   } else {
     res.redirect('/login');
   }

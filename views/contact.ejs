@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include('./partials/head.ejs'); %>
+  </head>
+  <body>
+    <header>
+      <%- include('./partials/header.ejs'); %>
+    </header>
+
+    <div class="container mt-5" style="padding-top: 60px;">
+        <h1 class="display-4 text-center mb-3">Contact Us</h1>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <h3 class="font-weight-bold text-secondary">Send us a message</h3>
+            <form>
+              <div class="form-group">
+                <label for="name" class="font-weight-bold">Name</label>
+                <input type="text" class="form-control" id="name" placeholder="Enter your name">
+              </div>
+              <div class="form-group">
+                <label for="email" class="font-weight-bold">Email</label>
+                <input type="email" class="form-control" id="email" placeholder="Enter your email">
+              </div>
+              <div class="form-group">
+                <label for="message" class="font-weight-bold">Message</label>
+                <textarea class="form-control" id="message" rows="3" placeholder="Enter your message"></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block font-weight-bold">Submit</button>
+            </form>
+          </div>
+          <div class="col-md-6">
+            <h3 class="font-weight-bold text-secondary">Our location</h3>
+            <p class="font-weight-bold">123 Main Street</p>
+            <p class="font-weight-bold">City, State 12345</p>
+            <p class="font-weight-bold">Phone: <a href="tel:1234567890" class="text-secondary">(123) 456-7890</a></p>
+            <p class="font-weight-bold">Email: <a href="mailto:info@company.com" class="text-secondary">info@company.com</a></p>
+          </div>
+        </div>
+      </div>
+      
+
+	</body>
+	</html>
