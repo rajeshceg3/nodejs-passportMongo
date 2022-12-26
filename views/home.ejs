@@ -1,97 +1,17 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet'>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-      :root {
-        --primary-color: #4285F4;
-        --secondary-color: #0F9D58;
-        --tertiary-color: #DB4437;
-        --quaternary-color: #F4B400;
-      }
-
-      h1 {
-        color: var(--primary-color);
-        font-family: 'Roboto', sans-serif;
-        font-size: 2em;
-      }
-
-      .navbar {
-        position: fixed;
-        top: 0;
-        width: 100%;
-        z-index: 1000;
-      }
-
-      .navbar {
-        background-color: #F0E6E6;  
-        color: #eb8f05;  
-      }
-
-      .navbar-nav .nav-link {
-        color: #10011b;  
-      }
-
-      .navbar-nav .nav-link:hover {
-        color: #f7ab08;  
-      }
-
-      .navbar-toggler {
-        background-color: #F0E6E6;  
-        border-color: #6C757D;  
-      }
-
-      .navbar .navbar-brand {
-        font-size: 1.5em;
-        font-weight: 700;
-      }
-    </style>
+    <%- include('./partials/head.ejs'); %>
   </head>
   <body>
+    <header>
+      <%- include('./partials/header.ejs'); %>
+    </header>
 
     <div style="display: flex; align-items: center; justify-content: center; height: 100vh;
       background-image: url('https://source.unsplash.com/random/1400x600/?football');"> 
         <h1>Welcome Home <%= user %></h1>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.16.0/dist/umd/popper.min.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-
-    <!-- Add a nav bar -->
-    <nav class="navbar navbar-expand-lg">
-      <a class="navbar-brand" href="#">Football</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item active">
-            <a class="nav-link" href="#">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#" onclick="about()">About</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Contact</a>
-          </li>
-          <li>
-            <a class="nav-link" href="#" onclick="logout()">Logout</a>
-          </li>
-		</ul>
-      </div>
-    </nav> 
-    <script>
-      function logout() {
-        // Send a GET request to the route /logout
-        window.location.href = '/logout';
-      }
-      function about(){
-        // Send a GET request to the route /about
-        window.location.href = '/about';
-      }      
-    </script>       
 
 	</body>
 	</html>
