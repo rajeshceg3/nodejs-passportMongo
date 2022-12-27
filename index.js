@@ -150,6 +150,15 @@ app.get('/about', (req, res) => {
   }
 });
 
+app.get('/gallery', (req, res) => {
+  // Check if the user is authenticated by passport local
+  if (req.isAuthenticated()) {
+    res.render('gallery')    
+  } else {
+    res.redirect('/login');
+  }
+});
+
 app.get('/contact', (req, res) => {
   // Check if the user is authenticated by passport local
   if (req.isAuthenticated()) {
