@@ -1,0 +1,56 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build_and_lint:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x] # You can add other versions like 16.x, 20.x
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install ESLint
+      run: npm install eslint --save-dev
+
+    - name: Initialize ESLint configuration
+      run: |
+        npx eslint --init <<EOF
+        4 # To check syntax, find problems, and enforce code style
+        1 # JavaScript modules (import/export)
+        4 # None of these
+        n # No TypeScript
+        y # Node.js environment
+        2 # JSON configuration file
+        y # Install ESLint and plugins
+        EOF
+      # The above heredoc attempts to automate eslint --init prompts.
+      # If this specific automation fails, the subtask should try to create a sensible default .eslintrc.json manually.
+
+    - name: Add lint script to package.json
+      run: |
+        npm pkg set scripts.lint="eslint . --ext .js" --json
+
+    - name: Run linter
+      run: npm run lint
+
+    # Placeholder for tests - uncomment and adapt when tests are added
+    # - name: Run tests
+    #   run: npm test

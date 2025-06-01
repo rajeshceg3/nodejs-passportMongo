@@ -69,137 +69,145 @@ mongoclient.connect((err)=>{
       })
     });
 
-    // Start the server only after DB connection and setup is complete
+    // Initialize flash, passport, session INSIDE connect callback
+    app.use(flash()); // Initialize flash
+
+    const mongoStore = new MongoDBStore({
+      uri: mongoUrl,
+      collection: "sessions"
+    });
+
+    // Handle errors for mongoStore
+    mongoStore.on('error',(error)=>{
+      console.error("MongoStore Error:", error);
+    });
+
+    app.use(
+      session({
+        store: mongoStore,
+        secret: secretKey,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+      //  secure: true, // for HTTPS // removed this due to SSL termination
+          maxAge: 1000 * 60 * 60 * 1, // 1 hour - input taken in ms
+        }
+      })
+    );
+
+    app.use(passport.initialize());
+    app.use(passport.session());
+
+    // Passport strategies, serialize, deserialize also inside (already here in existing code)
+    // const localStrategy = new LocalStrategy...
+    // passport.use(localStrategy);
+    // passport.serializeUser...
+    // passport.deserializeUser...
+
+    // === ALL ROUTE DEFINITIONS START HERE ===
+    app.get('/login', (req, res) => {
+      res.render('login'); // Assuming login.ejs can display flash messages
+    });
+
+    const redirects = {
+      successRedirect: '/',
+      failureRedirect: '/login',
+      failureFlash: true
+    };
+
+    app.post('/login',passport.authenticate('local', redirects));
+
+    app.get('/register', (req, res) => {
+      res.render('register'); // Assuming register.ejs can display flash messages
+    });
+
+    app.post('/register', (req, res) => {
+      const { username, password, confirmPassword } = req.body;
+      if (password !== confirmPassword) {
+        req.flash('error', 'Passwords do not match.');
+        return res.redirect('/register');
+      }
+      usersCollection.findOne({ username: username }, (err, existingUser) => {
+        if (err) {
+            console.error(err);
+            req.flash('error', 'Database error during registration. Please try again.');
+            return res.redirect('/register');
+        }
+        if (existingUser) {
+            req.flash('error', 'Username already taken.');
+            return res.redirect('/register');
+        }
+        const saltRounds = 10; // Or another appropriate number
+        bcrypt.genSalt(saltRounds, function(err, salt) {
+          if (err) {
+            console.error(err);
+            req.flash('error', 'Error generating salt. Please try again.');
+            return res.redirect('/register');
+          }
+          bcrypt.hash(password, salt, function(err, hash) {
+            if (err) {
+              console.error(err);
+              req.flash('error', 'Error hashing password. Please try again.');
+              return res.redirect('/register');
+            }
+            usersCollection.insertOne({ username, password: hash }, (err) => {
+              if (err) {
+                console.error(err);
+                req.flash('error', 'Error saving user. Please try again.');
+                return res.redirect('/register');
+              } else {
+                req.flash('success', 'Registration successful! Please login.'); // Optional: success flash
+                res.redirect('/login');
+              }
+            });
+          });
+        });
+      });
+    });
+
+    app.get('/', (req, res) => {
+      if (req.isAuthenticated()) {
+        res.render('home',{ user: req.user.username})
+      } else {
+        res.redirect('/login');
+      }
+    });
+
+    app.get('/about', (req, res) => {
+      if (req.isAuthenticated()) {
+        res.render('about')
+      } else {
+        res.redirect('/login');
+      }
+    });
+
+    app.get('/gallery', (req, res) => {
+      if (req.isAuthenticated()) {
+        res.render('gallery')
+      } else {
+        res.redirect('/login');
+      }
+    });
+
+    app.get('/contact', (req, res) => {
+      if (req.isAuthenticated()) {
+        res.render('contact')
+      } else {
+        res.redirect('/login');
+      }
+    });
+
+    app.get('/logout',(req,res)=>{
+      req.logOut(()=>{ // req.logout requires a callback in newer passport versions
+        res.redirect('/login');
+      });
+    });
+
+    // Start the server as the last step inside the connect callback
     app.listen(3000, () => {
       console.log('Server listening on port 3000');
     });
   }
 })
 
-const mongoStore = new MongoDBStore({
-  uri: mongoUrl,
-  collection: "sessions"
-});
-
-// Handle errors
-mongoStore.on('error',(error)=>{
-  console.error(error);
-});
-
-// Link express-session with mongoStore
-app.use(
-  session({
-    store: mongoStore,
-    secret: secretKey,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-  //  secure: true, // for HTTPS // removed this due to SSL termination
-      maxAge: 1000 * 60 * 60 * 1, // 1 hour - input taken in ms
-    }
-  })
-);
-
-// Initialize passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.use(flash());
-
-// Routes will use the usersCollection and passport configurations defined within the connect callback
-app.get('/login', (req, res) => {
-  res.render('login');
-});
-
-const redirects = {
-  successRedirect: '/',
-  failureRedirect: '/login',
-  failureFlash: true
-};
-
-app.post('/login',passport.authenticate('local', redirects));
-
-app.get('/register', (req, res) => {
-  res.render('register');
-});
-
-app.post('/register', (req, res) => {
-  const { username, password, confirmPassword } = req.body;
-  if (password !== confirmPassword) {
-    return res.render('register', { error: 'Passwords do not match.' });
-  }
-  usersCollection.findOne({ username: username }, (err, existingUser) => {
-    if (err) {
-        console.error(err);
-        return res.render('register', { error: 'An error occurred. Please try again.' });
-    }
-    if (existingUser) {
-        return res.render('register', { error: 'Username already taken.' });
-    }
-    const saltRounds = 10; // Or another appropriate number
-    bcrypt.genSalt(saltRounds, function(err, salt) {
-      if (err) {
-        console.error(err);
-        return res.redirect('/register'); // Or handle error more gracefully
-      }
-      bcrypt.hash(password, salt, function(err, hash) {
-        if (err) {
-          console.error(err);
-          return res.redirect('/register'); // Or handle error more gracefully
-        }
-        // Store hash in your password DB.
-        usersCollection.insertOne({ username, password: hash }, (err) => {
-          if (err) {
-            console.error(err);
-            res.redirect('/register');
-          } else {
-            res.redirect('/login');
-          }
-        });
-      });
-    });
-  });
-});
-
-
-app.get('/', (req, res) => {
-  // Check if the user is authenticated by passport local
-  if (req.isAuthenticated()) {
-    res.render('home',{ user: req.user.username})    
-  } else {
-    res.redirect('/login');
-  }
-});
-
-app.get('/about', (req, res) => {
-  // Check if the user is authenticated by passport local
-  if (req.isAuthenticated()) {
-    res.render('about')    
-  } else {
-    res.redirect('/login');
-  }
-});
-
-app.get('/gallery', (req, res) => {
-  // Check if the user is authenticated by passport local
-  if (req.isAuthenticated()) {
-    res.render('gallery')    
-  } else {
-    res.redirect('/login');
-  }
-});
-
-app.get('/contact', (req, res) => {
-  // Check if the user is authenticated by passport local
-  if (req.isAuthenticated()) {
-    res.render('contact')    
-  } else {
-    res.redirect('/login');
-  }
-});
-
-app.get('/logout',(req,res)=>{
-  req.logOut(()=>{
-    res.redirect('/login');
-  });
-})
+// Ensure this block is removed as routes are moved inside mongoclient.connect
