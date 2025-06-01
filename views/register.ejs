@@ -13,6 +13,9 @@
               <h4 class="card-title mb-0">Create an Account</h4>
             </div>
             <div class="card-body">
+              <% if (typeof error !== 'undefined' && error) { %>
+                <p style="color: red;"><%= error %></p>
+              <% } %>
               <form action="/register" method="post">
                 <div class="form-group">
                   <label for="username">Username:</label>
@@ -21,6 +24,10 @@
                 <div class="form-group">
                   <label for="password">Password:</label>
                   <input type="password" class="form-control" id="password" name="password">
+                </div>
+                <div class="form-group">
+                  <label for="confirmPassword">Confirm Password:</label>
+                  <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
                 </div>
                 <div class="form-group">
                   <button type="submit" class="btn btn-primary btn-block">Submit</button>
