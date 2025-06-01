@@ -13,6 +13,12 @@
               <h4 class="card-title mb-0">Login</h4>
             </div>
             <div class="card-body">
+              <% if (typeof error !== 'undefined' && error) { %>
+                <p style="color: red;"><%= error %></p>
+              <% } %>
+              <% if (messages && messages.error) { %>
+                <p style="color: red;"><%= messages.error %></p>
+              <% } %>
               <form action="/login" method="post">
                 <div class="form-group">
                   <label for="username">Username:</label>
