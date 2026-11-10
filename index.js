@@ -12,20 +12,20 @@ const REDIS_PORT = process.env.REDIS_PORT || 6379;
 const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017';
 
 const app = express();
-app.use(express.urlencoded({extended:false}))
+app.use(express.urlencoded({ extended:false }));
 
 // Set view engine
 app.set('view engine', 'ejs');
 
 // Create Monogo client
-const mongoclient = new MongoClient(mongoUrl, {useUnifiedTopology: true});
-mongoclient.connect((err)=>{
+const mongoclient = new MongoClient(mongoUrl, { useUnifiedTopology: true });
+mongoclient.connect((err) => {
   if(err){
-    console.error("Failed to connect to MongoDB:", err);
+    console.error('Failed to connect to MongoDB:', err);
     process.exit(1); // Exit if DB connection fails
   }
   else{
-    console.log("Conneced to Mongo server");
+    console.log('Conneced to Mongo server');
 
     // Define usersCollection AFTER successful connection
     const usersCollection = mongoclient.db('db').collection('users');
@@ -49,7 +49,7 @@ mongoclient.connect((err)=>{
             return done(null, false, { message: 'Incorrect password.' });
           }
         });
-      })
+      });
     });
     passport.use(localStrategy);
 
@@ -66,18 +66,18 @@ mongoclient.connect((err)=>{
         if(user){
           done(null, user);
         }
-      })
+      });
     });
 
     // Initialize flash, passport, session INSIDE connect callback
     const mongoStore = new MongoDBStore({
       uri: mongoUrl,
-      collection: "sessions"
+      collection: 'sessions'
     });
 
     // Handle errors for mongoStore
-    mongoStore.on('error',(error)=>{
-      console.error("MongoStore Error:", error);
+    mongoStore.on('error',(error) => {
+      console.error('MongoStore Error:', error);
     });
 
     app.use(
@@ -87,7 +87,7 @@ mongoclient.connect((err)=>{
         resave: false,
         saveUninitialized: false,
         cookie: {
-      //  secure: true, // for HTTPS // removed this due to SSL termination
+          //  secure: true, // for HTTPS // removed this due to SSL termination
           maxAge: 1000 * 60 * 60 * 1, // 1 hour - input taken in ms
         }
       })
@@ -136,13 +136,13 @@ mongoclient.connect((err)=>{
       }
       usersCollection.findOne({ username: username }, (err, existingUser) => {
         if (err) {
-            console.error(err);
-            req.flash('error', 'Database error during registration. Please try again.');
-            return res.redirect('/register');
+          console.error(err);
+          req.flash('error', 'Database error during registration. Please try again.');
+          return res.redirect('/register');
         }
         if (existingUser) {
-            req.flash('error', 'Username already taken.');
-            return res.redirect('/register');
+          req.flash('error', 'Username already taken.');
+          return res.redirect('/register');
         }
         const saltRounds = 10; // Or another appropriate number
         bcrypt.genSalt(saltRounds, function(err, salt) {
@@ -174,7 +174,7 @@ mongoclient.connect((err)=>{
 
     app.get('/', (req, res) => {
       if (req.isAuthenticated()) {
-        res.render('home',{ user: req.user.username})
+        res.render('home',{ user: req.user.username });
       } else {
         res.redirect('/login');
       }
@@ -182,7 +182,7 @@ mongoclient.connect((err)=>{
 
     app.get('/about', (req, res) => {
       if (req.isAuthenticated()) {
-        res.render('about')
+        res.render('about');
       } else {
         res.redirect('/login');
       }
@@ -190,7 +190,7 @@ mongoclient.connect((err)=>{
 
     app.get('/gallery', (req, res) => {
       if (req.isAuthenticated()) {
-        res.render('gallery')
+        res.render('gallery');
       } else {
         res.redirect('/login');
       }
@@ -198,14 +198,14 @@ mongoclient.connect((err)=>{
 
     app.get('/contact', (req, res) => {
       if (req.isAuthenticated()) {
-        res.render('contact')
+        res.render('contact');
       } else {
         res.redirect('/login');
       }
     });
 
-    app.get('/logout',(req,res)=>{
-      req.logOut(()=>{ // req.logout requires a callback in newer passport versions
+    app.get('/logout',(req,res) => {
+      req.logOut(() => { // req.logout requires a callback in newer passport versions
         res.redirect('/login');
       });
     });
@@ -215,6 +215,6 @@ mongoclient.connect((err)=>{
       console.log('Server listening on port 3000');
     });
   }
-})
+});
 
 // Ensure this block is removed as routes are moved inside mongoclient.connect
