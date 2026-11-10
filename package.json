@@ -21,6 +21,7 @@
     "passport-local": "^1.0.0"
   },
   "devDependencies": {
+    "eslint": "^8.57.1",
     "mongodb-memory-server": "^10.4.3"
   }
 }
