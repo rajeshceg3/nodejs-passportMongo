@@ -107,3 +107,13 @@ This project uses GitHub Actions for Continuous Integration. A workflow is set u
 This happens on every push to the `main` branch and on every pull request targeting `main`. This helps ensure code quality and consistency.
 
 (Future enhancements could include adding automated tests and a deployment (CD) stage.)
+
+## Verify
+
+```
+node .cursor/skills/verify-passport-mongo/verify.cjs
+```
+
+Spawns an in-memory MongoDB and the app, exercises registration, login,
+protected pages, flash feedback and logout with a real cookie jar, and
+writes an evidence report. See `.cursor/skills/verify-passport-mongo/`.

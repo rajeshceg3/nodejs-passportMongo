@@ -28,7 +28,7 @@ This document outlines the product requirements for the Node.js Starter Applicat
 | FR6  | Specific routes (e.g., Home `/`, About `/about`, Gallery `/gallery`, Contact `/contact`) shall be protected. | Must Have| Implemented |
 | FR7  | Unauthenticated users attempting to access protected routes shall be redirected to the login page.         | Must Have| Implemented |
 | FR8  | Upon successful login, the home page shall display the logged-in user's username.                          | Must Have| Implemented |
-| FR9  | The system shall provide clear feedback messages for registration errors (e.g., passwords do not match, username already taken, server-side errors). | Must Have | Partially Implemented (server errors can be improved) |
+| FR9  | The system shall provide clear feedback messages for registration errors (e.g., passwords do not match, username already taken, server-side errors). | Must Have | Implemented |
 | FR10 | The system shall provide clear feedback messages for login errors (e.g., incorrect username, incorrect password). | Must Have | Implemented (via connect-flash) |
 | FR11 | Usernames should be unique. The system should prevent registration with an existing username.             | Must Have | Implemented |
 

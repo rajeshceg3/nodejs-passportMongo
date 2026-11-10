@@ -16,6 +16,9 @@
               <% if (typeof error !== 'undefined' && error) { %>
                 <p style="color: red;"><%= error %></p>
               <% } %>
+              <% if (typeof messages !== 'undefined' && messages && messages.error) { %>
+                <p style="color: red;"><%= messages.error %></p>
+              <% } %>
               <form action="/register" method="post">
                 <div class="form-group">
                   <label for="username">Username:</label>
