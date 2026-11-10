@@ -70,8 +70,6 @@ mongoclient.connect((err)=>{
     });
 
     // Initialize flash, passport, session INSIDE connect callback
-    app.use(flash()); // Initialize flash
-
     const mongoStore = new MongoDBStore({
       uri: mongoUrl,
       collection: "sessions"
@@ -94,6 +92,15 @@ mongoclient.connect((err)=>{
         }
       })
     );
+
+    // flash must come after the session middleware (req.flash requires
+    // sessions), and the locals make flash messages available to every
+    // view; without them the templates reference `messages` and throw.
+    app.use(flash());
+    app.use((req, res, next) => {
+      res.locals.messages = { error: req.flash('error')[0], success: req.flash('success')[0] };
+      next();
+    });
 
     app.use(passport.initialize());
     app.use(passport.session());
